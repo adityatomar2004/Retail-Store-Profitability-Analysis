@@ -1,0 +1,61 @@
+-- ============================================================================
+-- RETAIL STORE PROFITABILITY ANALYSIS - DATA EXTRACTION QUERIES
+-- ============================================================================
+-- Database: retail_db
+-- Table: global superstore raw
+-- ============================================================================
+
+USE retail_db;
+
+-- ----------------------------------------------------------------------------
+-- 1. DATA EXPLORATION
+-- Scope: Retrieves all raw records to inspect the dataset schema, data types, 
+-- and identify any immediate data cleaning needs before aggregation.
+-- ----------------------------------------------------------------------------
+SELECT * FROM `global superstore raw`;
+
+
+-- ----------------------------------------------------------------------------
+-- 2. MACRO-LEVEL PROFITABILITY (CATEGORY)
+-- Scope: Aggregates total revenue and profit grouped by major product category.
+-- This identifies which high-level sectors drive the business.
+-- ----------------------------------------------------------------------------
+SELECT 
+    Category, 
+    ROUND(SUM(Sales), 2) AS Total_Revenue,
+    ROUND(SUM(Profit), 2) AS Total_Profit
+FROM `global superstore raw`
+GROUP BY Category
+ORDER BY Total_Profit DESC;
+
+
+-- ----------------------------------------------------------------------------
+-- 3. MICRO-LEVEL PERFORMANCE (SUB-CATEGORY)
+-- Scope: Drills down into specific sub-categories to find the top 10 strongest 
+-- performing product groups, providing more granular business insights.
+-- ----------------------------------------------------------------------------
+SELECT 
+    `Sub-Category`, 
+    ROUND(SUM(Sales), 2) AS Total_Revenue,
+    ROUND(SUM(Profit), 2) AS Total_Profit
+FROM `global superstore raw`
+GROUP BY `Sub-Category`
+ORDER BY Total_Profit DESC
+LIMIT 10;
+
+
+-- ----------------------------------------------------------------------------
+-- 4. LOSS ANALYSIS & RISK MITIGATION (PRODUCTS)
+-- Scope: Filters exclusively for negative profit margins (Profit < 0) to 
+-- pinpoint the top 10 individual products generating the most significant 
+-- financial losses for the store.
+-- ----------------------------------------------------------------------------
+SELECT 
+    `Product Name`, 
+    SUM(Quantity) AS Total_Units_Sold,
+    ROUND(SUM(Profit), 2) AS Total_Loss
+FROM `global superstore raw`
+WHERE Profit < 0
+GROUP BY `Product Name`
+ORDER BY Total_Loss ASC
+LIMIT 10;
